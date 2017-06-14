@@ -1,26 +1,35 @@
-var express = require('express');
-var session = require('cookie-session'); // Charge le middleware de sessions
+
+var app = require('express')();
+var server = require('http').Server(app);
 var bodyParser = require('body-parser'); // Charge le middleware de gestion des paramètres
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
+var io = require('socket.io')(server);
 
-var app = express();
 app.todos = ['coucou le monde'];
 
 
-/* On utilise les sessions */
-app.use(session({secret: 'todotopsecret'}))
+io.sockets.on("connection", function(socket){
+  console.log('socket IO ; connection faite');
+
+  socket.on("new_todo", function(todo){
+    console.log("the new todo is ", todo);
+
+    if (todo != '') {
+      app.todos.push(todo);
+
+      socket.emit("add_new_todo", todo);
+      socket.broadcast.emit("add_new_todo", todo);
+    }
+  });
+
+});
+
+
+
 
 /* On affiche la todolist et le formulaire */
-.get('/todo', function(req, res) { 
+app.get('/todo', function(req, res) { 
     res.render('todo.ejs', {todolist: app.todos});
-})
-
-/* On ajoute un élément à la todolist */
-.post('/todo/ajouter/', urlencodedParser, function(req, res) {
-    if (req.body.newtodo != '') {
-      app.todos.push(req.body.newtodo);
-    }
-    res.redirect('/todo');
 })
 
 /* Supprime un élément de la todolist */
@@ -34,6 +43,6 @@ app.use(session({secret: 'todotopsecret'}))
 /* On redirige vers la todolist si la page demandée n'est pas trouvée */
 .use(function(req, res, next){
     res.redirect('/todo');
-})
+});
 
-.listen(8080);   
+server.listen(8080);   
