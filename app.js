@@ -17,8 +17,24 @@ io.sockets.on("connection", function(socket){
     if (todo != '') {
       app.todos.push(todo);
 
-      socket.emit("add_new_todo", todo);
-      socket.broadcast.emit("add_new_todo", todo);
+      socket.emit("action_new_todo", todo);
+      socket.broadcast.emit("action_new_todo", todo);
+    }
+  });
+
+  socket.on("delete_todo", function(todo_id){
+
+    var id = new Number(todo_id);
+    console.log("todo to delete id: " + id);
+    console.log("isi not a number: ", isNaN(id));
+    
+    if (isNaN(id) == false ) {
+      console.log("the todos : ", app.todos);
+      app.todos.splice(id, 1);
+      console.log("after the todos : ", app.todos);
+
+      socket.emit("action_delete_todo", id);
+      socket.broadcast.emit("action_delete_todo", id);
     }
   });
 

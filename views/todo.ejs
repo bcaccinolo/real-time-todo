@@ -13,7 +13,7 @@
 
         <ul id='todo-list'>
         <% todolist.forEach(function(todo, index) { %>
-        <li><a href="/todo/supprimer/<%= index %>">✘</a> <%= index %> <%= todo %></li>
+        <li><a href="/todo/supprimer/<%= index %>" id="<%= index %>">✘</a> <%= index %> <%= todo %></li>
         <% }); %>
         </ul>
 
@@ -32,12 +32,25 @@
 
             $("form#ajout").submit(function(event){
               socket.emit("new_todo", $("#newtodo").val());
-              $("#newtodo").val('');
-
+              // $("#newtodo").val('');
               event.preventDefault();
             });
 
-            socket.on("add_new_todo", function(newtodo){
+            $("ul#todo-list").delegate('li a', 'click', function(event){
+              event.preventDefault();
+
+              var link_list = $("ul#todo-list li a");
+
+
+              console.log("position: ", link_list);
+              console.log("todo id : ", link_list.index($(this)));
+
+              socket.emit("delete_todo", link_list.index($(this)));
+              event.preventDefault();
+            });
+
+
+            socket.on("action_new_todo", function(newtodo){
 
               var $ul = $("ul#todo-list");
 
@@ -47,7 +60,16 @@
               var todo_entry = link + " " + id + " " + newtodo;
 
               $ul.append( $('<li>').append(todo_entry) );
+            });
 
+            socket.on("action_delete_todo", function(todo_id){
+              var id = todo_id + 1;
+
+              console.log("action delete todo", id);
+
+              $todo = $( "ul li:nth-child("+ id +")");
+              console.log($todo);
+              $todo.remove();
             });
 
         </script>
