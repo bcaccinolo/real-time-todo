@@ -47,3 +47,4 @@ app.get('/todo', function(req, res) {
 });
 
 server.listen(8080);   
+console.log("Listening on http://localhost:8080/ ");

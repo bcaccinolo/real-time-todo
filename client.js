@@ -4,7 +4,7 @@ var Client = {};
 Client.insert_new_todo = function($ul, newtodo){
   var id = $ul.children().length;
   var link = "<a href='/todo/supprimer/" + id + "' id='" + id + "'>✘</a>";
-  var todo_entry = link + " " + id + " " + newtodo;
+  var todo_entry = link + " " + newtodo;
 
   $ul.append( $('<li>').append(todo_entry) );
 };
